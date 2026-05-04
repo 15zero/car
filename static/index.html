@@ -4,292 +4,347 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CarAnalyser — Análise de Carros Usados</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
   <link rel="stylesheet" href="/static/css/style.css" />
 </head>
 <body>
 
-<!-- ═══════════════════════════════ HEADER ═══════════════════════════════ -->
+<!-- ══════════════════════ HEADER ══════════════════════ -->
 <header class="header">
   <div class="header-inner">
-    <div class="logo">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h11l4 4 1 4H5z"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
-      <span>CarAnalyser</span>
+    <a class="logo" href="/">
+      <div class="logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h11l4 4 1 4H5z"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="17.5" cy="17.5" r="1.5"/></svg>
+      </div>
+      <span class="logo-text">CarAnalyser</span>
+    </a>
+
+    <div class="header-actions">
+      <button class="hbtn" id="btn-add-manual" title="Adicionar anúncio manualmente">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Adicionar</span>
+      </button>
+      <button class="hbtn hbtn-icon" id="btn-settings" title="Configurações">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
     </div>
-    <nav class="header-nav">
-      <button class="btn btn-ghost" id="btn-settings" title="Configurações">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Configurações
-      </button>
-      <button class="btn btn-ghost" id="btn-add-manual" title="Adicionar manualmente">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Adicionar
-      </button>
-    </nav>
   </div>
 </header>
 
-<!-- ════════════════════════════ SEARCH PANEL ════════════════════════════ -->
-<section class="search-panel" id="search-panel">
-  <div class="search-panel-inner">
-    <h2 class="search-title">Buscar Anúncios</h2>
+<!-- ════════════════════ SEARCH PANEL ════════════════════ -->
+<section class="search-section" id="search-section">
+  <div class="search-inner">
+    <div class="search-heading">
+      <h1 class="search-title">Encontre sua próxima aquisição</h1>
+      <p class="search-sub">Analise automaticamente margem e risco nos anúncios do Webmotors e iCarros.</p>
+    </div>
 
-    <div class="search-grid">
-      <div class="field-group">
-        <label>Marca</label>
-        <input type="text" id="f-brand" placeholder="Ex: Honda, Toyota…" autocomplete="off" />
-      </div>
-      <div class="field-group">
-        <label>Modelo</label>
-        <input type="text" id="f-model" placeholder="Ex: Civic, Corolla…" autocomplete="off" />
-      </div>
-      <div class="field-group">
-        <label>Preço mín. (R$)</label>
-        <input type="number" id="f-price-min" placeholder="30000" min="0" />
-      </div>
-      <div class="field-group">
-        <label>Preço máx. (R$)</label>
-        <input type="number" id="f-price-max" placeholder="200000" min="0" />
-      </div>
-      <div class="field-group">
-        <label>Ano mín.</label>
-        <input type="number" id="f-year-min" placeholder="2018" min="1990" max="2026" />
-      </div>
-      <div class="field-group">
-        <label>Ano máx.</label>
-        <input type="number" id="f-year-max" placeholder="2024" min="1990" max="2026" />
-      </div>
-      <div class="field-group">
-        <label>KM máx.</label>
-        <input type="number" id="f-km-max" placeholder="100000" min="0" />
-      </div>
-
-      <div class="field-group sources-group">
-        <label>Fontes</label>
-        <div class="checkbox-row">
-          <label class="checkbox-label">
-            <input type="checkbox" id="src-webmotors" checked /> Webmotors
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" id="src-icarros" checked /> iCarros
-          </label>
+    <div class="search-card">
+      <!-- Row 1: main fields -->
+      <div class="srow srow-main">
+        <div class="sfield">
+          <label>Marca</label>
+          <input id="f-brand" type="text" placeholder="Honda, Toyota…" autocomplete="off" />
+        </div>
+        <div class="sfield">
+          <label>Modelo</label>
+          <input id="f-model" type="text" placeholder="Civic, Corolla…" autocomplete="off" />
+        </div>
+        <div class="sfield sfield-sm">
+          <label>Ano de</label>
+          <input id="f-year-min" type="number" placeholder="2018" min="1990" max="2026" />
+        </div>
+        <div class="sfield sfield-sm">
+          <label>Ano até</label>
+          <input id="f-year-max" type="number" placeholder="2025" min="1990" max="2026" />
+        </div>
+        <div class="sfield sfield-sm">
+          <label>KM máx.</label>
+          <input id="f-km-max" type="number" placeholder="100000" />
         </div>
       </div>
-    </div>
 
-    <div class="search-actions">
-      <button class="btn btn-primary" id="btn-search">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        Buscar Carros
-      </button>
-      <button class="btn btn-ghost" id="btn-clear-all">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-        Limpar lista
-      </button>
-    </div>
+      <!-- Row 2: price + sources + button -->
+      <div class="srow srow-bottom">
+        <div class="sfield sfield-sm">
+          <label>Preço mín. (R$)</label>
+          <input id="f-price-min" type="number" placeholder="30.000" />
+        </div>
+        <div class="sfield sfield-sm">
+          <label>Preço máx. (R$)</label>
+          <input id="f-price-max" type="number" placeholder="200.000" />
+        </div>
 
-    <div id="search-status" class="search-status hidden"></div>
+        <div class="sfield">
+          <label>Fontes</label>
+          <div class="source-toggles">
+            <button class="src-btn active" data-src="webmotors">
+              <span class="src-dot webmotors"></span> Webmotors
+            </button>
+            <button class="src-btn active" data-src="icarros">
+              <span class="src-dot icarros"></span> iCarros
+            </button>
+          </div>
+        </div>
+
+        <div class="sfield sfield-action">
+          <label>&nbsp;</label>
+          <button class="btn-search" id="btn-search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Buscar Carros
+          </button>
+        </div>
+      </div>
+
+      <div id="search-status" class="search-status hidden"></div>
+    </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════ STATS ════════════════════════════════ -->
-<section class="stats-bar" id="stats-bar">
-  <div class="stats-bar-inner">
-    <div class="stat-card stat-total">
-      <span class="stat-num" id="stat-total">0</span>
-      <span class="stat-label">Total</span>
+<!-- ══════════════════════ STATS BAR ══════════════════════ -->
+<section class="stats-section" id="stats-section">
+  <div class="stats-inner">
+    <div class="stat-pill stat-all" id="sp-all" data-filter="all">
+      <span class="sp-num" id="stat-total">0</span>
+      <span class="sp-label">Anúncios</span>
     </div>
-    <div class="stat-card stat-buy">
-      <span class="stat-num" id="stat-buy">0</span>
-      <span class="stat-label">Boa Compra</span>
+    <div class="stat-divider"></div>
+    <div class="stat-pill stat-buy" id="sp-buy" data-filter="buy">
+      <span class="sp-dot"></span>
+      <span class="sp-num" id="stat-buy">0</span>
+      <span class="sp-label">Boa Compra</span>
     </div>
-    <div class="stat-card stat-check">
-      <span class="stat-num" id="stat-check">0</span>
-      <span class="stat-label">Verificar</span>
+    <div class="stat-pill stat-check" id="sp-check" data-filter="check">
+      <span class="sp-dot"></span>
+      <span class="sp-num" id="stat-check">0</span>
+      <span class="sp-label">Verificar</span>
     </div>
-    <div class="stat-card stat-avoid">
-      <span class="stat-num" id="stat-avoid">0</span>
-      <span class="stat-label">Evitar</span>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════ FILTER / SORT BAR ════════════════════════ -->
-<section class="filter-bar" id="filter-bar">
-  <div class="filter-bar-inner">
-    <div class="quick-filters">
-      <button class="qf-btn active" data-filter="all">Todos</button>
-      <button class="qf-btn" data-filter="buy">Boa Compra</button>
-      <button class="qf-btn" data-filter="check">Verificar</button>
-      <button class="qf-btn" data-filter="avoid">Evitar</button>
+    <div class="stat-pill stat-avoid" id="sp-avoid" data-filter="avoid">
+      <span class="sp-dot"></span>
+      <span class="sp-num" id="stat-avoid">0</span>
+      <span class="sp-label">Evitar</span>
     </div>
 
-    <div class="filter-right">
-      <input type="text" id="filter-search" placeholder="Filtrar por marca, modelo…" />
-      <select id="sort-select">
-        <option value="margin_desc">Maior margem</option>
-        <option value="price_asc">Menor preço</option>
-        <option value="km_asc">Menor KM</option>
-        <option value="year_desc">Mais novo</option>
-        <option value="discount_desc">Maior desconto FIPE</option>
+    <div class="stats-right">
+      <div class="filter-search-wrap">
+        <svg class="filter-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="filter-search" type="text" placeholder="Filtrar resultados…" />
+      </div>
+      <select id="sort-select" class="sort-sel">
+        <option value="margin_desc">↑ Maior margem</option>
+        <option value="price_asc">↑ Menor preço</option>
+        <option value="km_asc">↑ Menor KM</option>
+        <option value="year_desc">↑ Mais novo</option>
+        <option value="discount_desc">↑ Maior desconto</option>
       </select>
+      <button class="hbtn hbtn-sm" id="btn-clear-all" title="Limpar lista">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        Limpar
+      </button>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════ CARDS ════════════════════════════════ -->
-<main class="main-content">
+<!-- ════════════════════ MAIN CONTENT ════════════════════ -->
+<main class="main">
   <div class="cards-grid" id="cards-grid">
+
+    <!-- Empty state -->
     <div class="empty-state" id="empty-state">
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h11l4 4 1 4H5z"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
-      <p>Nenhum anúncio ainda.</p>
-      <p class="empty-sub">Use o formulário acima para buscar carros no Webmotors e iCarros.</p>
+      <div class="empty-art">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1"><path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h11l4 4 1 4H5z"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="17.5" cy="17.5" r="1.5"/></svg>
+      </div>
+      <h3>Nenhum anúncio ainda</h3>
+      <p>Use o formulário acima para buscar carros no Webmotors e iCarros,<br>ou adicione um anúncio manualmente.</p>
+      <div class="empty-steps">
+        <div class="estep"><span class="estep-num">1</span> Informe marca, modelo e filtros</div>
+        <div class="estep"><span class="estep-num">2</span> Clique em <strong>Buscar Carros</strong></div>
+        <div class="estep"><span class="estep-num">3</span> Veja a análise de margem e risco</div>
+      </div>
     </div>
+
   </div>
 </main>
 
-<!-- ══════════════════════════ SETTINGS MODAL ════════════════════════════ -->
-<div class="modal-overlay hidden" id="modal-settings">
+<!-- ═══════════════════ SETTINGS MODAL ═══════════════════ -->
+<div class="overlay hidden" id="modal-settings">
   <div class="modal modal-sm">
-    <div class="modal-header">
-      <h3>Configurações</h3>
-      <button class="modal-close" data-close="modal-settings">✕</button>
+    <div class="modal-hd">
+      <div class="modal-hd-icon settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </div>
+      <div>
+        <h3>Configurações de Análise</h3>
+        <p class="modal-sub">Defina custos e markup alvo por veículo</p>
+      </div>
+      <button class="modal-x" data-close="modal-settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
     <div class="modal-body">
-      <div class="field-group">
-        <label>Custo estimado por carro (R$)</label>
-        <input type="number" id="cfg-costs" value="2000" min="0" step="100" />
-        <span class="field-hint">Revisão, reparos, detalhamento, transferência, comissão…</span>
+      <div class="cfg-field">
+        <div class="cfg-field-hd">
+          <label>Custo estimado por carro</label>
+          <span class="cfg-hint">Revisão, reparos, detalhamento, transferência, comissão</span>
+        </div>
+        <div class="cfg-input-wrap">
+          <span class="cfg-prefix">R$</span>
+          <input type="number" id="cfg-costs" value="2000" min="0" step="100" />
+        </div>
       </div>
-      <div class="field-group">
-        <label>Markup alvo por carro (R$)</label>
-        <input type="number" id="cfg-markup" value="10000" min="0" step="500" />
-        <span class="field-hint">Lucro bruto desejado antes de impostos.</span>
+      <div class="cfg-field">
+        <div class="cfg-field-hd">
+          <label>Markup alvo por carro</label>
+          <span class="cfg-hint">Lucro bruto desejado antes de impostos</span>
+        </div>
+        <div class="cfg-input-wrap">
+          <span class="cfg-prefix">R$</span>
+          <input type="number" id="cfg-markup" value="10000" min="0" step="500" />
+        </div>
       </div>
-      <div class="field-group">
-        <p class="formula-box">
-          Preço máx. de compra = FIPE − (markup + custos)<br/>
-          <strong>= FIPE − R$ <span id="cfg-total-deduction">12.000</span></strong>
-        </p>
+
+      <div class="formula-card">
+        <div class="formula-row">
+          <span>Preço máx. de compra</span>
+          <span>=</span>
+          <span>FIPE − R$ <strong id="cfg-total-deduction">12.000</strong></span>
+        </div>
+        <div class="formula-sub">= FIPE − (markup + custos)</div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" id="btn-save-settings">Salvar</button>
+    <div class="modal-ft">
+      <button class="btn-ghost" data-close="modal-settings">Cancelar</button>
+      <button class="btn-primary" id="btn-save-settings">Salvar configurações</button>
     </div>
   </div>
 </div>
 
-<!-- ════════════════════════ CAR DETAIL MODAL ════════════════════════════ -->
-<div class="modal-overlay hidden" id="modal-detail">
+<!-- ════════════════════ DETAIL MODAL ════════════════════ -->
+<div class="overlay hidden" id="modal-detail">
   <div class="modal modal-lg">
-    <div class="modal-header">
-      <h3 id="detail-title">—</h3>
-      <button class="modal-close" data-close="modal-detail">✕</button>
+    <div class="modal-hd">
+      <div>
+        <h3 id="detail-title">—</h3>
+        <p class="modal-sub" id="detail-sub">—</p>
+      </div>
+      <button class="modal-x" data-close="modal-detail">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
-    <div class="modal-body" id="detail-body">
-      <!-- Populated by JS -->
-    </div>
+    <div class="modal-body" id="detail-body"><!-- JS --></div>
   </div>
 </div>
 
-<!-- ═════════════════════ MANUAL ADD MODAL ═══════════════════════════════ -->
-<div class="modal-overlay hidden" id="modal-add">
+<!-- ═══════════════════ MANUAL ADD MODAL ═════════════════ -->
+<div class="overlay hidden" id="modal-add">
   <div class="modal modal-md">
-    <div class="modal-header">
-      <h3>Adicionar Anúncio Manualmente</h3>
-      <button class="modal-close" data-close="modal-add">✕</button>
+    <div class="modal-hd">
+      <div class="modal-hd-icon add">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <div>
+        <h3>Adicionar Anúncio</h3>
+        <p class="modal-sub">Facebook Marketplace ou qualquer outra fonte</p>
+      </div>
+      <button class="modal-x" data-close="modal-add">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
     <div class="modal-body">
       <div class="add-grid">
-        <div class="field-group">
-          <label>Fonte *</label>
-          <select id="add-source">
-            <option value="webmotors">Webmotors</option>
-            <option value="icarros">iCarros</option>
-            <option value="facebook">Facebook Marketplace</option>
-            <option value="manual">Outro</option>
-          </select>
-        </div>
-        <div class="field-group">
+        <div class="add-field span2">
           <label>Link do anúncio</label>
           <input type="url" id="add-url" placeholder="https://…" />
         </div>
-        <div class="field-group">
-          <label>Marca *</label>
+        <div class="add-field">
+          <label>Fonte</label>
+          <select id="add-source">
+            <option value="facebook">Facebook Marketplace</option>
+            <option value="webmotors">Webmotors</option>
+            <option value="icarros">iCarros</option>
+            <option value="manual">Outro</option>
+          </select>
+        </div>
+        <div class="add-field">
+          <label>Marca <span class="req">*</span></label>
           <input type="text" id="add-brand" placeholder="Honda" />
         </div>
-        <div class="field-group">
-          <label>Modelo *</label>
+        <div class="add-field">
+          <label>Modelo <span class="req">*</span></label>
           <input type="text" id="add-model" placeholder="Civic" />
         </div>
-        <div class="field-group">
+        <div class="add-field span2">
           <label>Versão</label>
-          <input type="text" id="add-version" placeholder="EXL 2.0 CVT" />
+          <input type="text" id="add-version" placeholder="EXL 2.0 CVT Flex" />
         </div>
-        <div class="field-group">
-          <label>Ano fab.</label>
+        <div class="add-field">
+          <label>Ano fabricação</label>
           <input type="number" id="add-year" placeholder="2021" min="1990" max="2026" />
         </div>
-        <div class="field-group">
+        <div class="add-field">
           <label>Ano modelo</label>
           <input type="number" id="add-year-model" placeholder="2022" min="1990" max="2027" />
         </div>
-        <div class="field-group">
-          <label>KM</label>
+        <div class="add-field">
+          <label>Quilometragem</label>
           <input type="number" id="add-km" placeholder="55000" min="0" />
         </div>
-        <div class="field-group">
+        <div class="add-field">
           <label>Cor</label>
           <input type="text" id="add-color" placeholder="Prata" />
         </div>
-        <div class="field-group">
+        <div class="add-field">
           <label>Câmbio</label>
           <select id="add-transmission">
-            <option value="Automático">Automático</option>
-            <option value="Manual">Manual</option>
-            <option value="CVT">CVT</option>
+            <option>Automático</option>
+            <option>Manual</option>
+            <option>CVT</option>
           </select>
         </div>
-        <div class="field-group">
+        <div class="add-field">
           <label>Combustível</label>
           <select id="add-fuel">
-            <option value="Flex">Flex</option>
-            <option value="Gasolina">Gasolina</option>
-            <option value="Diesel">Diesel</option>
-            <option value="Elétrico">Elétrico</option>
-            <option value="Híbrido">Híbrido</option>
+            <option>Flex</option>
+            <option>Gasolina</option>
+            <option>Diesel</option>
+            <option>Elétrico</option>
+            <option>Híbrido</option>
           </select>
         </div>
-        <div class="field-group">
-          <label>Preço pedido (R$) *</label>
-          <input type="number" id="add-price" placeholder="85000" min="0" />
+        <div class="add-field">
+          <label>Preço pedido (R$) <span class="req">*</span></label>
+          <input type="number" id="add-price" placeholder="89000" min="0" />
         </div>
-        <div class="field-group">
+        <div class="add-field">
           <label>Preço FIPE (R$)</label>
-          <input type="number" id="add-fipe" placeholder="Deixe em branco para buscar" min="0" />
+          <input type="number" id="add-fipe" placeholder="Busca automática" min="0" />
         </div>
-        <div class="field-group">
+        <div class="add-field">
           <label>Nº de donos</label>
           <input type="number" id="add-owners" value="1" min="1" max="10" />
         </div>
-        <div class="field-group">
+        <div class="add-field">
           <label>Cidade / UF</label>
           <input type="text" id="add-city" placeholder="São Paulo / SP" />
         </div>
-        <div class="field-group flags-group">
+        <div class="add-field span2">
           <label>Flags de risco</label>
-          <label class="checkbox-label"><input type="checkbox" id="add-flag-auction" /> Histórico de leilão</label>
-          <label class="checkbox-label"><input type="checkbox" id="add-flag-recall" /> Recall pendente</label>
+          <div class="flag-row">
+            <label class="flag-check"><input type="checkbox" id="add-flag-auction" /><span>Histórico de leilão</span></label>
+            <label class="flag-check"><input type="checkbox" id="add-flag-recall" /><span>Recall pendente</span></label>
+          </div>
         </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" data-close="modal-add">Cancelar</button>
-      <button class="btn btn-primary" id="btn-save-add">Salvar anúncio</button>
+    <div class="modal-ft">
+      <button class="btn-ghost" data-close="modal-add">Cancelar</button>
+      <button class="btn-primary" id="btn-save-add">Salvar anúncio</button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════ TOAST ════════════════════════════════ -->
+<!-- ════════════════════════ TOAST ═══════════════════════ -->
 <div id="toast" class="toast hidden"></div>
 
 <script src="/static/js/app.js"></script>
