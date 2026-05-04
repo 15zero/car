@@ -113,21 +113,59 @@ async function handleSearch() {
     year_min:  +q('#f-year-min').value        || undefined,
     year_max:  +q('#f-year-max').value        || undefined,
     km_max:    +q('#f-km-max').value          || undefined,
+    max_pages: 15,
   };
 
-  setStatus('Buscando anúncios e consultando FIPE…', 'loading');
   setBtnLoading(true);
   showSkeletons(8);
 
   try {
-    const { total, added, errors } = await api('/api/search', { method: 'POST', body: filters });
-    let msg = `${total} resultado(s). ${added} novo(s) adicionado(s).`;
-    if (errors?.length) msg += ' ⚠️ ' + errors.join('; ');
-    setStatus(msg, errors?.length ? 'error' : 'success');
-    await loadListings();
+    // Get SSE token
+    const { token } = await api('/api/search/prepare', { method: 'POST', body: filters });
+
+    await new Promise((resolve, reject) => {
+      const es = new EventSource(`/api/search/stream?token=${token}`);
+      const counts = {};
+
+      es.addEventListener('status', e => {
+        const d = JSON.parse(e.data);
+        setStatus(d.msg, 'loading');
+      });
+
+      es.addEventListener('progress', e => {
+        const d = JSON.parse(e.data);
+        counts[d.source] = d.total;
+        const total = Object.values(counts).reduce((a, b) => a + b, 0);
+        setStatus(`Buscando… ${total} anúncios coletados (página ${d.page} — ${d.source})`, 'loading');
+      });
+
+      es.addEventListener('fipe_progress', e => {
+        const d = JSON.parse(e.data);
+        setStatus(`Consultando FIPE… ${d.done}/${d.total}`, 'loading');
+      });
+
+      es.addEventListener('done', async e => {
+        es.close();
+        const d = JSON.parse(e.data);
+        let msg = `${d.total} resultado(s). ${d.added} novo(s) adicionado(s).`;
+        if (d.errors?.length) msg += ' ⚠️ ' + d.errors.join('; ');
+        setStatus(msg, d.errors?.length ? 'error' : 'success');
+        await loadListings();
+        resolve();
+      });
+
+      es.addEventListener('error', e => {
+        es.close();
+        setStatus('Erro na busca. Verifique o terminal do servidor.', 'error');
+        renderCards();
+        reject(new Error('SSE error'));
+      });
+    });
   } catch(err) {
-    setStatus(`Erro: ${err.message}`, 'error');
-    renderCards();
+    if (!q('#search-status').classList.contains('error')) {
+      setStatus(`Erro: ${err.message}`, 'error');
+      renderCards();
+    }
   } finally {
     setBtnLoading(false);
   }

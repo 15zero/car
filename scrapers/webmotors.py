@@ -2,13 +2,14 @@
 Scraper for Webmotors listings.
 
 Strategies (in order):
-  1. Internal JSON API  (/api/search/car)
+  1. Internal JSON API  (/api/search/car) — paginates through all pages
   2. __NEXT_DATA__ embedded JSON in page HTML
   3. __PRELOADED_STATE__ script variable
 """
 
 import json
 import re
+import time
 import uuid
 
 import requests
@@ -28,6 +29,8 @@ BASE_HEADERS = {
 
 SEARCH_URL = "https://www.webmotors.com.br/carros/estoque"
 API_URL = "https://www.webmotors.com.br/api/search/car"
+ITEMS_PER_PAGE = 24
+DEFAULT_MAX_PAGES = 15  # 360 cars max
 
 
 class WebmotorsScraper:
@@ -39,21 +42,51 @@ class WebmotorsScraper:
     # Public                                                               #
     # ------------------------------------------------------------------ #
 
-    def search(self, filters: dict) -> list:
+    def search(self, filters: dict, progress_cb=None) -> list:
+        """Fetch all pages matching filters. progress_cb(page, total) optional."""
         params = self._build_params(filters)
-        page = filters.get("page", 1)
+        max_pages = int(filters.get("max_pages", DEFAULT_MAX_PAGES))
 
-        # Strategy 1 — internal JSON API
-        results = self._try_api(params, page)
-        if results is not None:
-            return results
+        # Warm up session with a browser-like GET to avoid 403
+        self._warm_session()
 
-        # Strategy 2/3 — page HTML
-        results = self._try_html(params)
-        if results is not None:
-            return results
+        all_results = []
+        for page in range(1, max_pages + 1):
+            batch = self._try_api(params, page)
+            if batch is None:
+                # API unavailable — fall back to HTML for page 1 only
+                if page == 1:
+                    batch = self._try_html(params) or []
+                else:
+                    break
 
-        return []
+            if not batch:
+                print(f"[Webmotors] Página {page}: vazia, encerrando.")
+                break
+
+            all_results.extend(batch)
+            print(f"[Webmotors] Página {page}: {len(batch)} anúncios (total: {len(all_results)})")
+
+            if progress_cb:
+                progress_cb("webmotors", page, len(all_results))
+
+            if len(batch) < ITEMS_PER_PAGE:
+                # Last page (partial)
+                break
+
+            # Polite delay to avoid rate limiting
+            time.sleep(0.5)
+
+        # Deduplicate by id
+        seen = set()
+        unique = []
+        for car in all_results:
+            if car["id"] not in seen:
+                seen.add(car["id"])
+                unique.append(car)
+
+        print(f"[Webmotors] Total: {len(unique)} anúncios únicos em {page} página(s)")
+        return unique
 
     # ------------------------------------------------------------------ #
     # Strategy 1: Internal JSON API                                        #
@@ -64,7 +97,7 @@ class WebmotorsScraper:
         api_params = {
             "url": page_url,
             "actualPage": page,
-            "itemsPerPage": 24,
+            "itemsPerPage": ITEMS_PER_PAGE,
             "showMenu": "true",
             "hasVehicleLeadForm": "false",
         }
@@ -78,16 +111,29 @@ class WebmotorsScraper:
             r = self.session.get(API_URL, params=api_params, headers=headers, timeout=20)
             if r.status_code == 200:
                 data = r.json()
-                cars = self._parse_api_results(data.get("SearchResults", []))
-                print(f"[Webmotors] API: {len(cars)} anúncios")
-                return cars
+                items = data.get("SearchResults", [])
+                return self._parse_api_results(items)
+            elif r.status_code in (403, 429):
+                print(f"[Webmotors] API bloqueada ({r.status_code}) — use a aplicação localmente")
+                return None
         except Exception as e:
-            print(f"[Webmotors] API falhou: {e}")
+            print(f"[Webmotors] API erro p{page}: {e}")
         return None
 
     # ------------------------------------------------------------------ #
     # Strategy 2/3: HTML page parsing                                     #
     # ------------------------------------------------------------------ #
+
+    def _warm_session(self):
+        """Visit the homepage to get cookies before scraping."""
+        try:
+            headers = {
+                **BASE_HEADERS,
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            }
+            self.session.get("https://www.webmotors.com.br/", headers=headers, timeout=10)
+        except Exception:
+            pass
 
     def _try_html(self, params: dict):
         headers = {
@@ -108,7 +154,6 @@ class WebmotorsScraper:
     def _parse_html(self, html: str):
         soup = BeautifulSoup(html, "lxml")
 
-        # __NEXT_DATA__
         tag = soup.find("script", id="__NEXT_DATA__")
         if tag and tag.string:
             try:
@@ -126,7 +171,6 @@ class WebmotorsScraper:
             except Exception as e:
                 print(f"[Webmotors] __NEXT_DATA__ parse error: {e}")
 
-        # __PRELOADED_STATE__
         for script in soup.find_all("script"):
             text = script.string or ""
             if "__PRELOADED_STATE__" in text:
@@ -217,4 +261,8 @@ class WebmotorsScraper:
             p["ano_ate"] = f["year_max"]
         if f.get("km_max"):
             p["km_ate"] = f["km_max"]
+        if f.get("state"):
+            p["estado"] = f["state"]
+        if f.get("city"):
+            p["cidade"] = f["city"]
         return p

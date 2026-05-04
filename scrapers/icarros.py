@@ -2,13 +2,14 @@
 Scraper for iCarros listings.
 
 Strategies (in order):
-  1. Internal JSON search API  (/ola/busca/buscar-carros)
+  1. Internal JSON search API  (/ola/busca/buscar-carros) — paginates all pages
   2. __NEXT_DATA__ embedded JSON
   3. Structured JSON-LD + card HTML fallback
 """
 
 import json
 import re
+import time
 import uuid
 
 import requests
@@ -27,6 +28,8 @@ BASE_HEADERS = {
 
 SEARCH_URL = "https://www.icarros.com.br/comprar/"
 API_URL = "https://www.icarros.com.br/ola/busca/buscar-carros"
+ITEMS_PER_PAGE = 24
+DEFAULT_MAX_PAGES = 15  # 360 cars max
 
 
 class ICarrosScraper:
@@ -38,25 +41,55 @@ class ICarrosScraper:
     # Public                                                               #
     # ------------------------------------------------------------------ #
 
-    def search(self, filters: dict) -> list:
-        # Strategy 1 — internal JSON API
-        results = self._try_api(filters)
-        if results is not None:
-            return results
+    def search(self, filters: dict, progress_cb=None) -> list:
+        """Fetch all pages matching filters. progress_cb(source, page, total) optional."""
+        max_pages = int(filters.get("max_pages", DEFAULT_MAX_PAGES))
 
-        # Strategy 2/3 — page HTML
-        results = self._try_html(filters)
-        if results is not None:
-            return results
+        # Warm up session
+        self._warm_session()
 
-        return []
+        all_results = []
+        for page in range(1, max_pages + 1):
+            batch = self._try_api(filters, page)
+            if batch is None:
+                # API unavailable — fall back to HTML for page 1 only
+                if page == 1:
+                    batch = self._try_html(filters, page=1) or []
+                else:
+                    break
+
+            if not batch:
+                print(f"[iCarros] Página {page}: vazia, encerrando.")
+                break
+
+            all_results.extend(batch)
+            print(f"[iCarros] Página {page}: {len(batch)} anúncios (total: {len(all_results)})")
+
+            if progress_cb:
+                progress_cb("icarros", page, len(all_results))
+
+            if len(batch) < ITEMS_PER_PAGE:
+                break
+
+            time.sleep(0.5)
+
+        # Deduplicate by id
+        seen = set()
+        unique = []
+        for car in all_results:
+            if car["id"] not in seen:
+                seen.add(car["id"])
+                unique.append(car)
+
+        print(f"[iCarros] Total: {len(unique)} anúncios únicos em {page} página(s)")
+        return unique
 
     # ------------------------------------------------------------------ #
     # Strategy 1: Internal JSON API                                        #
     # ------------------------------------------------------------------ #
 
-    def _try_api(self, filters: dict):
-        payload = self._build_payload(filters)
+    def _try_api(self, filters: dict, page: int):
+        payload = self._build_payload(filters, page)
         headers = {
             **BASE_HEADERS,
             "Accept": "application/json, text/plain, */*",
@@ -69,20 +102,32 @@ class ICarrosScraper:
             if r.status_code == 200:
                 data = r.json()
                 items = data.get("anuncios", data.get("results", data.get("data", [])))
-                if isinstance(items, list) and items:
+                if isinstance(items, list):
                     cars = [self._normalise_api(i) for i in items]
-                    print(f"[iCarros] API: {len(cars)} anúncios")
                     return cars
+            elif r.status_code in (403, 429):
+                print(f"[iCarros] API bloqueada ({r.status_code}) — use a aplicação localmente")
+                return None
         except Exception as e:
-            print(f"[iCarros] API falhou: {e}")
+            print(f"[iCarros] API erro p{page}: {e}")
         return None
 
     # ------------------------------------------------------------------ #
     # Strategy 2/3: HTML page parsing                                     #
     # ------------------------------------------------------------------ #
 
-    def _try_html(self, filters: dict):
-        params = self._build_params(filters)
+    def _warm_session(self):
+        try:
+            headers = {
+                **BASE_HEADERS,
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            }
+            self.session.get("https://www.icarros.com.br/", headers=headers, timeout=10)
+        except Exception:
+            pass
+
+    def _try_html(self, filters: dict, page: int = 1):
+        params = self._build_params(filters, page)
         headers = {
             **BASE_HEADERS,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -101,7 +146,6 @@ class ICarrosScraper:
     def _parse_html(self, html: str):
         soup = BeautifulSoup(html, "lxml")
 
-        # __NEXT_DATA__
         tag = soup.find("script", id="__NEXT_DATA__")
         if tag and tag.string:
             try:
@@ -124,7 +168,6 @@ class ICarrosScraper:
             except Exception as e:
                 print(f"[iCarros] __NEXT_DATA__ parse error: {e}")
 
-        # JSON-LD structured data
         for script in soup.find_all("script", type="application/ld+json"):
             try:
                 data = json.loads(script.string or "")
@@ -136,7 +179,6 @@ class ICarrosScraper:
             except Exception:
                 pass
 
-        # HTML card fallback
         cards = soup.select("[class*='card'], [class*='anuncio'], [class*='listing']")
         if cards:
             cars = [self._parse_card(c) for c in cards[:50]]
@@ -171,7 +213,6 @@ class ICarrosScraper:
         state = item.get("estado", item.get("state", ""))
         transmission = item.get("cambio", item.get("transmission", ""))
         fuel = item.get("combustivel", item.get("fuel", ""))
-        slug = item.get("slug", item.get("urlAmigavel", listing_id))
 
         return {
             "id": listing_id,
@@ -249,7 +290,8 @@ class ICarrosScraper:
             url = ""
             listing_id = str(uuid.uuid4())
             if link_el:
-                url = "https://www.icarros.com.br" + link_el["href"] if link_el["href"].startswith("/") else link_el["href"]
+                href = link_el.get("href", "")
+                url = "https://www.icarros.com.br" + href if href.startswith("/") else href
                 m = re.search(r"/(\d+)", url)
                 if m:
                     listing_id = m.group(1)
@@ -292,8 +334,8 @@ class ICarrosScraper:
     # Helpers                                                              #
     # ------------------------------------------------------------------ #
 
-    def _build_params(self, f: dict) -> dict:
-        p = {}
+    def _build_params(self, f: dict, page: int = 1) -> dict:
+        p = {"pagina": page}
         if f.get("brand"):
             p["marca"] = f["brand"]
         if f.get("model"):
@@ -308,10 +350,12 @@ class ICarrosScraper:
             p["anoFinal"] = f["year_max"]
         if f.get("km_max"):
             p["kmMaximo"] = f["km_max"]
+        if f.get("state"):
+            p["estado"] = f["state"]
         return p
 
-    def _build_payload(self, f: dict) -> dict:
-        payload: dict = {"pagina": 1, "quantidadePorPagina": 24}
+    def _build_payload(self, f: dict, page: int = 1) -> dict:
+        payload: dict = {"pagina": page, "quantidadePorPagina": ITEMS_PER_PAGE}
         if f.get("brand"):
             payload["marcas"] = [{"nome": f["brand"]}]
         if f.get("model"):
@@ -326,4 +370,6 @@ class ICarrosScraper:
             payload["anoFinal"] = f["year_max"]
         if f.get("km_max"):
             payload["kmMaximo"] = f["km_max"]
+        if f.get("state"):
+            payload["estado"] = f["state"]
         return payload
