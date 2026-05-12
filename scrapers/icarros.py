@@ -15,6 +15,8 @@ import uuid
 import requests
 from bs4 import BeautifulSoup
 
+from scrapers.gecko import GeckoScraper
+
 BASE_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -42,7 +44,20 @@ class ICarrosScraper:
     # ------------------------------------------------------------------ #
 
     def search(self, filters: dict, progress_cb=None) -> list:
-        """Fetch all pages matching filters. progress_cb(source, page, total) optional."""
+        """Fetch all pages matching filters. progress_cb(source, page, total) optional.
+
+        Priority:
+          1. GeckoAPI (if GECKO_TOKEN configured) — bypasses IP blocks
+          2. Direct internal API
+          3. HTML page parsing fallback
+        """
+        # Strategy 0: GeckoAPI
+        gecko = GeckoScraper()
+        if gecko.is_configured():
+            print("[iCarros] Usando GeckoAPI como proxy…")
+            return gecko.search_icarros(filters, progress_cb=progress_cb)
+
+        # Strategy 1+2: Direct scrape (requires local/residential IP)
         max_pages = int(filters.get("max_pages", DEFAULT_MAX_PAGES))
 
         # Warm up session
